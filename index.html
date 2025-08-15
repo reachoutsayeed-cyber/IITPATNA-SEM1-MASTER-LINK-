@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSDA Semester 1 Dashboard | Sayeed</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --light-bg: #f5f7fa;
+            --light-card-bg: rgba(255, 255, 255, 0.7);
+            --light-text: #1a202c;
+            --light-text-secondary: #4a5568;
+            --light-border: #e2e8f0;
+            --light-accent: #4f46e5;
+            --light-accent-light: #e0e7ff;
+
+            --dark-bg: #111827;
+            --dark-card-bg: rgba(31, 41, 55, 0.7);
+            --dark-text: #f9fafb;
+            --dark-text-secondary: #9ca3af;
+            --dark-border: #374151;
+            --dark-accent: #818cf8;
+            --dark-accent-light: #3730a3;
+        }
+
+        [data-theme="light"] {
+            --bg-color: var(--light-bg);
+            --card-bg-color: var(--light-card-bg);
+            --text-color: var(--light-text);
+            --text-secondary-color: var(--light-text-secondary);
+            --border-color: var(--light-border);
+            --accent-color: var(--light-accent);
+            --accent-light-color: var(--light-accent-light);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: var(--dark-bg);
+            --card-bg-color: var(--dark-card-bg);
+            --text-color: var(--dark-text);
+            --text-secondary-color: var(--dark-text-secondary);
+            --border-color: var(--dark-border);
+            --accent-color: var(--dark-accent);
+            --accent-light-color: var(--dark-accent-light);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 24px;
+            overflow-x: hidden;
+        }
+
+        .aurora-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+            background: radial-gradient(ellipse at top, var(--accent-color) 0%, transparent 50%),
+                        radial-gradient(ellipse at bottom, var(--accent-color) 0%, transparent 50%);
+            animation: aurora 20s infinite linear;
+        }
+
+        @keyframes aurora {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .main-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: grid;
+            gap: 24px;
+        }
+
+        .card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 1.5rem;
+            padding: 24px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+        }
+
+        #greeting-container h1 { font-size: 2.2em; font-weight: 800; margin: 0; }
+        #greeting-container p { margin: 0; font-size: 1em; color: var(--text-secondary-color); }
+
+        .theme-switcher { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        #theme-toggle { display: none; }
+        .toggle-track { width: 50px; height: 26px; background-color: var(--accent-light-color); border-radius: 13px; position: relative; }
+        .toggle-thumb { width: 20px; height: 20px; background-color: var(--accent-color); border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: transform 0.3s ease; }
+        #theme-toggle:checked + .toggle-track .toggle-thumb { transform: translateX(24px); }
+
+        h2 { font-size: 1.5em; font-weight: 700; display: flex; align-items: center; gap: 12px; margin-top: 0; margin-bottom: 24px; color: var(--text-color); }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-auto-rows: minmax(150px, auto);
+            gap: 24px;
+        }
+
+        .bento-grid .card { padding: 24px; }
+        .card[data-grid-col="1"] { grid-column: span 1; }
+        .card[data-grid-col="2"] { grid-column: span 2; }
+        .card[data-grid-col="3"] { grid-column: span 3; }
+        .card[data-grid-col="4"] { grid-column: span 4; }
+        .card[data-grid-col="6"] { grid-column: span 6; }
+        
+        @media (max-width: 1200px) {
+            .card[data-grid-col="1"], .card[data-grid-col="2"], .card[data-grid-col="3"], .card[data-grid-col="4"] { grid-column: span 3; }
+        }
+        @media (max-width: 768px) {
+            .bento-grid .card { grid-column: span 6 !important; }
+        }
+
+        .info-card { text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        .info-card h3 { margin: 0 0 8px 0; font-size: 1.1em; color: var(--text-secondary-color); }
+        .info-card .value { font-size: 2em; font-weight: 700; color: var(--accent-color); line-height: 1.2; }
+
+        #today-focus-list .class-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+        #today-focus-list .class-item:last-child { border-bottom: none; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        thead th { font-weight: 600; text-transform: uppercase; font-size: 0.8em; color: var(--text-secondary-color); }
+        .current-day-row { background-color: var(--accent-light-color); }
+
+        .btn { display: inline-block; padding: 6px 14px; border-radius: 8px; text-decoration: none; color: #fff; font-weight: 600; transition: all 0.2s ease; margin-right: 5px; text-align: center; }
+        .btn-live { background-color: #d946ef; }
+        .btn-record { background-color: #64748b; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+
+        .progress-bar { height: 8px; background-color: var(--accent-light-color); border-radius: 4px; overflow: hidden; }
+        .progress-bar-inner { height: 100%; background-color: var(--accent-color); transition: width 0.5s ease; }
+
+        .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+        .link-card { background: var(--accent-light-color); padding: 16px; border-radius: 12px; text-decoration: none; color: var(--text-color); font-weight: 600; display: flex; align-items: center; gap: 12px; }
+        .link-card i { font-size: 1.2em; color: var(--accent-color); }
+
+        #timeline-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .timeline-item { background: var(--accent-light-color); padding: 16px; border-radius: 12px; display: flex; flex-direction: column; }
+        .timeline-item strong { font-size: 1.1em; }
+        .timeline-item span { font-size: 0.9em; color: var(--text-secondary-color); }
+
+        footer { text-align: center; padding: 20px; color: var(--text-secondary-color); }
+        .libutton { display: inline-flex; align-items: center; justify-content: center; padding: 7px 20px; text-decoration: none !important; color: #ffffff !important; width: 200px; height: 40px; border-radius: 20px; background-color: #0A66C2; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 500; margin: 5px; transition: all 0.2s ease; }
+        .github-btn { background-color: #24292e; }
+    </style>
+</head>
+<body>
+    <div class="aurora-background"></div>
+    <div class="main-container">
+        <header>
+            <div id="greeting-container">
+                <h1>Welcome back, Sayeed</h1>
+                <p id="live-clock"></p>
+            </div>
+            <label for="theme-toggle" class="theme-switcher">
+                <i class="fas fa-sun"></i>
+                <input type="checkbox" id="theme-toggle">
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                <i class="fas fa-moon"></i>
+            </label>
+        </header>
+
+        <div class="bento-grid">
+            <div class="card info-card" data-grid-col="2">
+                <h3><i class="fas fa-forward"></i> What's Next?</h3>
+                <div class="value" id="next-class-name">Loading...</div>
+                <div id="next-class-time"></div>
+            </div>
+            <div class="card info-card" data-grid-col="2">
+                <h3><i class="fas fa-stopwatch"></i> Next Deadline</h3>
+                <div class="value" id="countdown-timer">--:--:--</div>
+                <div id="next-deadline-name">Loading...</div>
+            </div>
+            <div class="card" data-grid-col="2">
+                <h2><i class="fa-solid fa-bullseye"></i> Today's Focus</h2>
+                <div id="today-focus-list"></div>
+            </div>
+            <div class="card" data-grid-col="3">
+                <h2><i class="fas fa-chart-pie"></i> Attendance Overview</h2>
+                <div id="attendance-bars" style="display: grid; gap: 16px;"></div>
+            </div>
+            <div class="card" data-grid-col="3">
+                <h2><i class="fas fa-link"></i> Quick Links</h2>
+                <div class="link-grid" id="link-grid-main"></div>
+            </div>
+            <div class="card" data-grid-col="6">
+                <h2><i class="fas fa-calendar-check"></i> Academic Calendar</h2>
+                <div id="timeline-container"></div>
+            </div>
+            <div class="card" data-grid-col="6">
+                 <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2><i class="fas fa-tasks"></i> Active Task List</h2>
+                    <div id="task-progress-container" style="width: 200px;">
+                        <div id="task-progress-text" style="font-size: 0.9em; margin-bottom: 4px; text-align: right;"></div>
+                        <div class="progress-bar"><div id="task-progress-bar" class="progress-bar-inner"></div></div>
+                    </div>
+                </div>
+                <table>
+                    <thead><tr><th>Status</th><th>Task</th><th>Course</th><th>Date Added</th></tr></thead>
+                    <tbody id="task-body"></tbody>
+                </table>
+            </div>
+            <div class="card" data-grid-col="6">
+                <h2><i class="fas fa-calendar-alt"></i> Full Semester Schedule</h2>
+                <table>
+                    <thead><tr><th>Date</th><th>Day</th><th>Course</th><th>Time</th><th>Links</th><th>Status</th><th>Notes</th></tr></thead>
+                    <tbody id="schedule-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            <p>Made with ❤️ by Sayeed</p>
+            <div>
+                <a class="libutton" href="https://www.linkedin.com/comm/mynetwork/discovery-see-all?usecase=PEOPLE_FOLLOWS&followMember=sayeedhere" target="_blank">Follow on LinkedIn</a>
+                <a class="libutton github-btn" href="https://github.com/SAYEEDHERE" target="_blank">Follow on GitHub</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- DATA AND CONFIGURATION ---
+        const courses = {
+            'BO CDA 101': { name: 'Mathematics - I', theoryTotal: 0, labTotal: 0, links: { page: 'https://cet.iitp.ac.in/moodle/course/view.php?id=168', live: 'https://teams.microsoft.com/dl/launcher/launcher.html?url=%2F_%23%2Fl%2Fmeetup-join%2F19%3Ameeting_ZDllZGJjMWItOTAzMC00OWQ3LTlmZmItNmFkOTU0N2YxNTE4%40thread.v2%2F0%3Fcontext%3D%257b%2522Tid%2522%253a%2522a57f7d92-038e-4d4c-8265-7cd2beb33b34%2522%252c%2522Oid%2522%253a%2522881f02af-c268-4b89-96e0-9632a3a9d1ea%2522%257d%26anon%3Dtrue&type=meetup-join&deeplinkId=4eaab662-2409-42c7-b3db-8ff46252d0a8&directDl=true&msLaunch=true&enableMobilePage=true&suppressPrompt=true', recordings: 'https://cciitpatna-my.sharepoint.com/personal/cda101_iitp_ac_in/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fcda101%5Fiitp%5Fac%5Fin%2FDocuments%2FRecordings&ga=1' } },
+            'BO CDA 103': { name: 'Foundations of Computer Science', theoryTotal: 0, labTotal: 0, links: { page: 'https://cet.iitp.ac.in/moodle/course/view.php?id=169', live: 'https://teams.microsoft.com/dl/launcher/launcher.html?url=%2F_%23%2Fl%2Fmeetup-join%2F19%3Ameeting_ZDBjNzg4MDMtYzA3MS00MTVlLWEyNDktYTA1NTAxYjVlMGVm%40thread.v2%2F0%3Fcontext%3D%257b%2522Tid%2522%253a%2522a57f7d92-038e-4d4c-8265-7cd2beb33b34%2522%252c%2522Oid%2522%253a%2522c9793e9b-5e43-4731-ac3a-eb7a6d80fba2%2522%257d%26anon%3Dtrue&type=meetup-join&deeplinkId=46faa5e5-cc85-492a-bfdb-c0e336f848a9&directDl=true&msLaunch=true&enableMobilePage=true&suppressPrompt=true', lab: 'https://teams.microsoft.com/dl/launcher/launcher.html?url=%2F_%23%2Fl%2Fmeetup-join%2F19%3Ameeting_N2ViODllYWEtZWNiMC00YmJhLThjN2YtODllMjU1ZGU1YTlm%40thread.v2%2F0%3Fcontext%3D%257b%2522Tid%2522%253a%2522a57f7d92-038e-4d4c-8265-7cd2beb33b34%2522%252c%2522Oid%2522%253a%2522c9793e9b-5e43-4731-ac3a-eb7a6d80fba2%2522%257d%26anon%3Dtrue&type=meetup-join&deeplinkId=c047fbf2-97ee-41ff-b64c-c6645f3b4a49&directDl=true&msLaunch=true&enableMobilePage=true&suppressPrompt=true', recordings: 'https://cciitpatna-my.sharepoint.com/personal/cda103_iitp_ac_in/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fcda103%5Fiitp%5Fac%5Fin%2FDocuments%2FRecordings&ga=1' } },
+            'BO CDA 105': { name: 'Foundations of Data Analytics', theoryTotal: 0, labTotal: 0, links: { page: 'https://cet.iitp.ac.in/moodle/course/view.php?id=170', live: 'https://teams.microsoft.com/dl/launcher/launcher.html?url=%2F_%23%2Fl%2Fmeetup-join%2F19%3Ameeting_YmE5NzUyZjItNDQ3Yy00ZGY2LTlkNWUtZmNkOTg5N2FhMjlj%40thread.v2%2F0%3Fcontext%3D%257b%2522Tid%2522%253a%2522a57f7d92-038e-4d4c-8265-7cd2beb33b34%2522%252c%2522Oid%2522%253a%252272d6d8ed-1cbb-4655-ab15-827743bb76d2%2522%257d%26anon%3Dtrue&type=meetup-join&deeplinkId=8ccabff5-2188-4b80-9114-9b1ebc7f756b&directDl=true&msLaunch=true&enableMobilePage=true&suppressPrompt=true', lab: 'https://teams.microsoft.com/dl/launcher/launcher.html?url=%2F_%23%2Fl%2Fmeetup-join%2F19%3Ameeting_MTBlNjI0ZDYtZTI5NC00NzU4LTliZTMtYmQ4N2QxMzA0MDRk%40thread.v2%2F0%3Fcontext%3D%257b%2522Tid%2522%253a%2522a57f7d92-038e-4d4c-8265-7cd2beb33b34%2522%252c%2522Oid%2522%253a%252272d6d8ed-1cbb-4655-ab15-827743bb76d2%2522%257d%26anon%3Dtrue&type=meetup-join&deeplinkId=d172cb13-8d99-412b-bc98-760661838568&directDl=true&msLaunch=true&enableMobilePage=true&suppressPrompt=true', recordings: 'https://cciitpatna-my.sharepoint.com/personal/cda105_iitp_ac_in/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fcda105%5Fiitp%5Fac%5Fin%2FDocuments%2FRecordings&ga=1' } },
+            'BO CDA 107': { name: 'Foundations of English for Professionals', theoryTotal: 0, labTotal: 0, links: { page: 'https://cet.iitp.ac.in/moodle/course/view.php?id=171', live: 'https://teams.microsoft.com/dl/launcher/launcher.html?url=%2F_%23%2Fl%2Fmeetup-join%2F19%3Ameeting_MzQwZjdmYTQtM2Q0OS00NTk0LTgxMDgtMDkwNmNiM2I5MTZh%40thread.v2%2F0%3Fcontext%3D%257b%2522Tid%2522%253a%2522a57f7d92-038e-4d4c-8265-7cd2beb33b34%2522%252c%2522Oid%2522%253a%2522b4bf82a2-9db1-4972-ae60-a276e58b5d4f%2522%257d%26anon%3Dtrue&type=meetup-join&deeplinkId=26f9d888-3dff-48a1-a978-03b01900b590&directDl=true&msLaunch=true&enableMobilePage=true&suppressPrompt=true', tutorial: 'https://teams.microsoft.com/dl/launcher/launcher.html?url=%2F_%23%2Fl%2Fmeetup-join%2F19%3Ameeting_OTZlMGVhYTYtODEyZC00ZWM1LTk0YzItMzVhYjVlMGNjM2U4%40thread.v2%2F0%3Fcontext%3D%257b%2522Tid%2522%253a%2522a57f7d92-038e-4d4c-8265-7cd2beb33b34%2522%252c%2522Oid%2522%253a%2522b4bf82a2-9db1-4972-ae60-a276e58b5d4f%2522%257d%26anon%3Dtrue&type=meetup-join&deeplinkId=a732ce65-9432-46f1-9ba8-5d7fbd8037fb&directDl=true&msLaunch=true&enableMobilePage=true&suppressPrompt=true', recordings: 'https://cciitpatna-my.sharepoint.com/personal/cda107_iitp_ac_in/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fcda107%5Fiitp%5Fac%5Fin%2FDocuments%2FRecordings&ga=1' } },
+        };
+        const scheduleTemplate = [ { day: 1, courseCode: 'BO CDA 105', time: '08:00 AM - 09:55 AM', type: 'Class' }, { day: 1, courseCode: 'BO CDA 107', time: '01:00 PM - 01:55 PM', type: 'Class' }, { day: 1, courseCode: 'BO CDA 103', time: '02:00 PM - 03:55 PM', type: 'Lab' }, { day: 2, courseCode: 'BO CDA 101', time: '09:00 AM - 10:55 AM', type: 'Class' }, { day: 2, courseCode: 'BO CDA 107', time: '01:00 PM - 01:55 PM', type: 'Class' }, { day: 2, courseCode: 'BO CDA 103', time: '02:00 PM - 03:55 PM', type: 'Class' }, { day: 3, courseCode: 'BO CDA 105', time: '08:00 AM - 09:55 AM', type: 'Class' }, { day: 3, courseCode: 'BO CDA 107', time: '01:00 PM - 01:55 PM', type: 'Class' }, { day: 3, courseCode: 'BO CDA 103', time: '02:00 PM - 03:55 PM', type: 'Class' }, { day: 4, courseCode: 'BO CDA 107', time: '01:00 PM - 03:00 PM', type: 'Tutorial' }, { day: 4, courseCode: 'BO CDA 103', time: '02:00 PM - 03:55 PM', type: 'Class' }, { day: 6, courseCode: 'BO CDA 101', time: '09:00 AM - 10:55 AM', type: 'Class' }, { day: 6, courseCode: 'BO CDA 105', time: '11:00 AM - 12:55 PM', type: 'Lab' }, ];
+        const academicCalendar = [ { date: '2025-08-14', event: 'Orientation & Training' }, { date: '2025-08-18', event: 'First Day of Instruction' }, { date: '2025-09-04', event: 'Assignment 1' }, { date: '2025-09-22', event: 'Quiz 1' }, { date: '2025-10-09', event: 'Assignment 2' }, { date: '2025-10-22', event: 'Assignment 3' }, { date: '2025-11-05', event: 'Quiz 2' }, { date: '2025-11-18', event: 'Assignment 4' }, { date: '2025-11-24', event: 'Last Day of Instructions' }, { date: '2025-12-08', event: 'End Semester Exam' }, { date: '2025-12-26', event: 'Results Declaration' }, ];
+        const importantLinks = [ { name: 'IIT Patna CET', url: 'https://cet.iitp.ac.in/', icon: 'fa-university' }, { name: 'My Courses Dashboard', url: 'https://cet.iitp.ac.in/moodle/my/courses.php', icon: 'fa-tachometer-alt' }, ];
+
+        let fullSchedule = [];
+        let tasks = [];
+        let countdownInterval;
+
+        // --- INITIALIZATION ---
+        function initializeApp() {
+            const data = loadData();
+            if (data && data.fullSchedule && data.fullSchedule.length > 0) {
+                fullSchedule = data.fullSchedule;
+                tasks = data.tasks || [];
+            } else {
+                generateFullSchedule();
+                tasks = [];
+            }
+            calculateTotalClasses();
+            renderAll();
+            startLiveClock();
+            startCountdown();
+            initializeTheme();
+            addEventListeners();
+        }
+
+        // --- DATA GENERATION & CALCULATION ---
+        function generateFullSchedule() {
+            const startDate = new Date('2025-08-18T00:00:00');
+            const endDate = new Date('2025-11-24T23:59:59');
+            let currentDate = new Date(startDate);
+            let idCounter = 0;
+            while (currentDate <= endDate) {
+                const dayOfWeek = currentDate.getDay();
+                scheduleTemplate.forEach(template => {
+                    if (template.day === dayOfWeek) {
+                        fullSchedule.push({ id: idCounter++, date: currentDate.toISOString().split('T')[0], day: currentDate.toLocaleDateString('en-US', { weekday: 'long' }), courseCode: template.courseCode, time: template.time, type: template.type, attended: false, notes: '' });
+                    }
+                });
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        }
+        function calculateTotalClasses() {
+            Object.values(courses).forEach(c => { c.theoryTotal = 0; c.labTotal = 0; });
+            fullSchedule.forEach(entry => {
+                if (courses[entry.courseCode]) {
+                    if (entry.type === 'Lab') courses[entry.courseCode].labTotal++;
+                    else courses[entry.courseCode].theoryTotal++;
+                }
+            });
+        }
+        
+        // --- RENDER FUNCTIONS ---
+        function renderAll() {
+            renderSchedule();
+            renderTasks();
+            renderAttendanceBars();
+            renderAcademicCalendar();
+            renderImportantLinks();
+            renderWhatsNext();
+            renderTodayFocus();
+        }
+        
+        function renderSchedule() {
+            const scheduleBody = document.getElementById('schedule-body');
+            const todayStr = new Date().toISOString().split('T')[0];
+            scheduleBody.innerHTML = fullSchedule.map(entry => {
+                const course = courses[entry.courseCode];
+                let link_html = '';
+                if (entry.type === 'Lab' && course.links.lab) link_html = `<a href="${course.links.lab}" target="_blank" class="btn btn-live">Lab</a>`;
+                else if (entry.type === 'Tutorial' && course.links.tutorial) link_html = `<a href="${course.links.tutorial}" target="_blank" class="btn btn-live">Tut</a>`;
+                else if (course.links.live) link_html = `<a href="${course.links.live}" target="_blank" class="btn btn-live">Live</a>`;
+                if (course.links.recordings) link_html += ` <a href="${course.links.recordings}" target="_blank" class="btn btn-record">Recs</a>`;
+                
+                return `<tr class="${entry.date === todayStr ? 'current-day-row' : ''}" data-entry-id="${entry.id}">
+                        <td>${new Date(entry.date).toLocaleDateString('en-GB')}</td><td>${entry.day}</td>
+                        <td>${course.name} (${entry.type})</td><td>${entry.time}</td><td>${link_html}</td>
+                        <td><input type="checkbox" data-action="toggle-attendance" ${entry.attended ? 'checked' : ''}></td>
+                        <td><input type="text" data-action="update-notes" value="${entry.notes}" placeholder="Add note..."></td>
+                    </tr>`;
+            }).join('');
+        }
+
+        function renderTasks() {
+            document.getElementById('task-body').innerHTML = tasks.map(task => `
+                <tr data-task-id="${task.id}">
+                    <td><input type="checkbox" data-action="toggle-task" ${task.done ? 'checked' : ''}></td>
+                    <td>${task.text}</td><td>${courses[task.courseCode].name}</td>
+                    <td>${new Date(task.dateAdded).toLocaleDateString('en-GB')}</td>
+                </tr>`).join('');
+            renderTaskProgress();
+        }
+
+        function renderTaskProgress() {
+            const completed = tasks.filter(t => t.done).length;
+            const total = tasks.length;
+            const progress = total > 0 ? (completed / total) * 100 : 0;
+            document.getElementById('task-progress-text').textContent = `${completed} / ${total} completed`;
+            document.getElementById('task-progress-bar').style.width = `${progress}%`;
+        }
+
+        function renderAttendanceBars() {
+            document.getElementById('attendance-bars').innerHTML = Object.entries(courses).map(([code, course]) => {
+                let html = `<div><h4>${course.name}</h4>`;
+                if (course.theoryTotal > 0) {
+                    const attended = fullSchedule.filter(e => e.courseCode === code && e.type !== 'Lab' && e.attended).length;
+                    const percent = course.theoryTotal > 0 ? Math.round((attended / course.theoryTotal) * 100) : 0;
+                    html += `<div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Theory: ${attended}/${course.theoryTotal}</span>
+                                <strong>${percent}%</strong>
+                             </div>
+                             <div class="progress-bar"><div class="progress-bar-inner" style="width: ${percent}%;"></div></div>`;
+                }
+                if (course.labTotal > 0) {
+                    const attended = fullSchedule.filter(e => e.courseCode === code && e.type === 'Lab' && e.attended).length;
+                    const percent = course.labTotal > 0 ? Math.round((attended / course.labTotal) * 100) : 0;
+                    html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-top:10px;">
+                                <span>Lab: ${attended}/${course.labTotal}</span>
+                                <strong>${percent}%</strong>
+                             </div>
+                             <div class="progress-bar"><div class="progress-bar-inner" style="width: ${percent}%;"></div></div>`;
+                }
+                return html + '</div>';
+            }).join('');
+        }
+
+        function renderAcademicCalendar() {
+            document.getElementById('timeline-container').innerHTML = academicCalendar.map(item => `
+                <div class="timeline-item">
+                    <strong>${item.event}</strong>
+                    <span>${new Date(item.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                </div>`).join('');
+        }
+
+        function renderImportantLinks() {
+            let html = importantLinks.map(link => `<a href="${link.url}" target="_blank" class="link-card"><i class="fas ${link.icon}"></i><span>${link.name}</span></a>`).join('');
+            Object.values(courses).forEach(course => {
+                if(course.links.page) html += `<a href="${course.links.page}" target="_blank" class="link-card"><i class="fas fa-book-open"></i><span>${course.name} Page</span></a>`;
+            });
+            document.getElementById('link-grid-main').innerHTML = html;
+        }
+
+        function renderWhatsNext() {
+            const nextClass = fullSchedule.find(entry => new Date(`${entry.date} ${entry.time.split(' - ')[0]}`) > new Date());
+            if (nextClass) {
+                document.getElementById('next-class-name').textContent = `${courses[nextClass.courseCode].name} (${nextClass.type})`;
+                document.getElementById('next-class-time').textContent = `${nextClass.day}, ${nextClass.time}`;
+            } else {
+                document.getElementById('next-class-name').textContent = "Semester Finished!";
+                document.getElementById('next-class-time').textContent = "Enjoy your break!";
+            }
+        }
+
+        function renderTodayFocus() {
+            const todayClasses = fullSchedule.filter(entry => entry.date === new Date().toISOString().split('T')[0]);
+            const focusList = document.getElementById('today-focus-list');
+            if (todayClasses.length > 0) {
+                focusList.innerHTML = todayClasses.map(entry => `<div class="class-item"><span>${courses[entry.courseCode].name} (${entry.type})</span><strong>${entry.time}</strong></div>`).join('');
+            } else {
+                focusList.innerHTML = '<p>No classes today. Take a break!</p>';
+            }
+        }
+
+        // --- DYNAMIC FEATURES ---
+        function startLiveClock() {
+            const clock = document.getElementById('live-clock');
+            const update = () => clock.textContent = new Date().toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+            update(); setInterval(update, 1000);
+        }
+        
+        function startCountdown() {
+            const nextDeadline = academicCalendar.find(d => new Date(d.date) > new Date());
+            if (!nextDeadline) { document.getElementById('next-deadline-name').textContent = "All deadlines passed!"; return; }
+            document.getElementById('next-deadline-name').textContent = nextDeadline.event;
+            const deadlineDate = new Date(nextDeadline.date);
+            if(countdownInterval) clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                const s = (deadlineDate - new Date()) / 1000;
+                if (s < 0) { clearInterval(countdownInterval); document.getElementById('countdown-timer').textContent = "Deadline Passed!"; return; }
+                const d = Math.floor(s / 86400); const h = Math.floor(s / 3600) % 24; const m = Math.floor(s / 60) % 60;
+                document.getElementById('countdown-timer').textContent = `${d}d ${h}h ${m}m`;
+            }, 1000);
+        }
+
+        function initializeTheme() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            themeToggle.checked = savedTheme === 'dark';
+        }
+
+        // --- EVENT HANDLING (DELEGATION) ---
+        function addEventListeners() {
+            document.getElementById('theme-toggle').addEventListener('change', (e) => {
+                const theme = e.target.checked ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+            });
+
+            const mainContainer = document.querySelector('.main-container');
+            mainContainer.addEventListener('change', handleMainContainerEvent);
+            mainContainer.addEventListener('blur', handleMainContainerEvent, true);
+        }
+
+        function handleMainContainerEvent(e) {
+            const target = e.target;
+            const action = target.dataset.action;
+            if (!action) return;
+
+            if (action === "toggle-attendance") {
+                const entryId = parseInt(target.closest('tr').dataset.entryId);
+                const entry = fullSchedule.find(item => item.id === entryId);
+                if (entry) {
+                    entry.attended = target.checked;
+                    saveAndRerender();
+                }
+            } else if (action === "toggle-task") {
+                const taskId = parseInt(target.closest('tr').dataset.taskId);
+                const task = tasks.find(item => item.id === taskId);
+                if (task) {
+                    task.done = target.checked;
+                    saveAndRerender();
+                }
+            } else if (action === "update-notes" && e.type === 'blur') {
+                const entryId = parseInt(target.closest('tr').dataset.entryId);
+                const entry = fullSchedule.find(item => item.id === entryId);
+                const newNotes = target.value.trim();
+                if (entry && entry.notes !== newNotes) {
+                    entry.notes = newNotes;
+                    const existingTask = tasks.find(task => task.scheduleId === entry.id);
+                    if (newNotes && !existingTask) {
+                        tasks.push({ id: Date.now(), scheduleId: entry.id, text: newNotes, courseCode: entry.courseCode, dateAdded: entry.date, done: false });
+                    } else if (newNotes && existingTask) {
+                        existingTask.text = newNotes;
+                    } else if (!newNotes && existingTask) {
+                        tasks = tasks.filter(task => task.scheduleId !== entry.id);
+                    }
+                    saveAndRerender();
+                }
+            }
+        }
+        
+        // --- DATA PERSISTENCE ---
+        function saveAndRerender() {
+            saveData();
+            renderTasks();
+            renderAttendanceBars();
+        }
+        function saveData() { localStorage.setItem('csdaPlannerData_v7', JSON.stringify({ fullSchedule, tasks })); }
+        function loadData() {
+            const data = localStorage.getItem('csdaPlannerData_v7');
+            return data ? JSON.parse(data) : null;
+        }
+
+        // --- RUN APP ---
+        initializeApp();
+    });
+    </script>
+</body>
+</html>
