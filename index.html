@@ -60,7 +60,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 24px;
+            padding: 16px;
             overflow-x: hidden;
         }
 
@@ -98,7 +98,6 @@
             -webkit-backdrop-filter: blur(20px);
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden;
         }
 
         .card:hover {
@@ -108,8 +107,10 @@
 
         header {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 16px;
             align-items: center;
+            text-align: center;
             padding: 16px;
         }
 
@@ -140,13 +141,6 @@
         .card[data-grid-col="3"] { grid-column: span 3; }
         .card[data-grid-col="6"] { grid-column: span 6; }
         
-        @media (max-width: 1200px) {
-            .card[data-grid-col="2"], .card[data-grid-col="3"] { grid-column: span 3; }
-        }
-        @media (max-width: 768px) {
-            .bento-grid .card { grid-column: span 6 !important; }
-        }
-
         .info-card { text-align: center; display: flex; flex-direction: column; justify-content: center; }
         .info-card h3 { margin: 0 0 8px 0; font-size: 1.1em; color: var(--text-secondary-color); }
         .info-card .value { font-size: 2em; font-weight: 700; color: var(--accent-color); line-height: 1.2; }
@@ -154,7 +148,12 @@
         #today-focus-list .class-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
         #today-focus-list .class-item:last-child { border-bottom: none; }
 
-        table { width: 100%; border-collapse: collapse; }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th, td { padding: 14px; text-align: left; border-bottom: 1px solid var(--border-color); }
         thead th { font-weight: 600; text-transform: uppercase; font-size: 0.8em; color: var(--text-secondary-color); }
         .current-day-row { background-color: var(--accent-light-color); }
@@ -238,6 +237,19 @@
         .gemini-response-area ul, .gemini-response-area ol { padding-left: 20px; }
 
         .plan-actions { margin-top: 20px; display: flex; gap: 10px; }
+
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            header {
+                flex-direction: row;
+                text-align: left;
+            }
+        }
+        @media (min-width: 1200px) {
+            .card[data-grid-col-lg="2"] { grid-column: span 2; }
+            .card[data-grid-col-lg="3"] { grid-column: span 3; }
+            .card[data-grid-col-lg="4"] { grid-column: span 4; }
+        }
     </style>
 </head>
 <body>
@@ -315,25 +327,25 @@
         </header>
 
         <div class="bento-grid">
-            <div class="card info-card" data-grid-col="2">
+            <div class="card info-card" data-grid-col="2" data-grid-col-lg="2">
                 <h3><i class="fas fa-forward"></i> What's Next?</h3>
                 <div class="value" id="next-class-name">Loading...</div>
                 <div id="next-class-time"></div>
             </div>
-            <div class="card info-card" data-grid-col="2">
+            <div class="card info-card" data-grid-col="2" data-grid-col-lg="2">
                 <h3><i class="fas fa-stopwatch"></i> Next Deadline</h3>
                 <div class="value" id="countdown-timer">--:--:--</div>
                 <div id="next-deadline-name">Loading...</div>
             </div>
-            <div class="card" data-grid-col="2">
+            <div class="card" data-grid-col="2" data-grid-col-lg="2">
                 <h2><i class="fa-solid fa-bullseye"></i> Today's Focus</h2>
                 <div id="today-focus-list"></div>
             </div>
-            <div class="card" data-grid-col="3">
+            <div class="card" data-grid-col="3" data-grid-col-lg="3">
                 <h2><i class="fas fa-chart-pie"></i> Attendance Overview</h2>
                 <div id="attendance-bars" style="display: grid; gap: 16px;"></div>
             </div>
-            <div class="card" data-grid-col="3">
+            <div class="card" data-grid-col="3" data-grid-col-lg="3">
                 <h2><i class="fas fa-link"></i> Quick Links</h2>
                 <div id="link-grid-main"></div>
             </div>
@@ -342,7 +354,7 @@
                 <div id="timeline-container"></div>
             </div>
             <div class="card" data-grid-col="6">
-                 <div style="display: flex; justify-content: space-between; align-items: center;">
+                 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;">
                     <h2><i class="fas fa-tasks"></i> Active Task List</h2>
                     <div style="display: flex; align-items: center; gap: 16px;">
                         <button id="generate-plan-btn" class="btn" style="background-color: var(--accent-color);">✨ Generate Study Plan</button>
@@ -352,24 +364,28 @@
                         </div>
                     </div>
                 </div>
-                <table>
-                    <thead><tr><th>Status</th><th>Task</th><th>Course</th><th>Date Added</th></tr></thead>
-                    <tbody id="task-body"></tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Status</th><th>Task</th><th>Course</th><th>Date Added</th></tr></thead>
+                        <tbody id="task-body"></tbody>
+                    </table>
+                </div>
             </div>
             <div class="card" data-grid-col="6">
                 <h2><i class="fas fa-calendar-alt"></i> Full Semester Schedule</h2>
-                <table>
-                    <thead><tr><th>Date</th><th>Day</th><th>Course</th><th>Time</th><th>Links</th><th>Status</th><th>Notes</th></tr></thead>
-                    <tbody id="schedule-body"></tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Date</th><th>Day</th><th>Course</th><th>Time</th><th>Links</th><th>Status</th><th>Notes</th></tr></thead>
+                        <tbody id="schedule-body"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <footer>
             <p>Made with ❤️ by Sayeed</p>
             <div>
-                <a class="libutton" href="https://www.linkedin.com/in/sayeed-here/" target="_blank">Follow on LinkedIn</a> 
+                <a class="libutton" href="https://www.linkedin.com/in/sayeed-here/" target="_blank">Follow on LinkedIn</a>
                 <a class="libutton github-btn" href="https://github.com/SAYEEDHERE" target="_blank">Follow on GitHub</a>
             </div>
         </footer>
