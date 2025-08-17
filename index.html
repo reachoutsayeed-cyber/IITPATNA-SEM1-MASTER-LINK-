@@ -136,8 +136,8 @@
         }
 
         .bento-grid .card { padding: 24px; }
-        .card[data-grid-col="2"] { grid-column: span 2; }
-        .card[data-grid-col="3"] { grid-column: span 3; }
+        .card[data-grid-col="2"] { grid-column: span 6; }
+        .card[data-grid-col="3"] { grid-column: span 6; }
         .card[data-grid-col="6"] { grid-column: span 6; }
         
         .info-card { text-align: center; display: flex; flex-direction: column; justify-content: center; }
@@ -243,24 +243,11 @@
                 flex-direction: row;
                 text-align: left;
             }
+             .card[data-grid-col-md="3"] { grid-column: span 3; }
         }
-        @media (max-width: 1024px) {
-            .card[data-grid-col="2"],
-            .card[data-grid-col="3"] {
-                grid-column: span 3; /* Two cards per row on tablets */
-            }
-        }
-        @media (max-width: 768px) {
-            .bento-grid {
-                grid-template-columns: 1fr; /* Single column on mobile */
-            }
-            .card[data-grid-col="2"],
-            .card[data-grid-col="3"],
-            .card[data-grid-col="6"] {
-                grid-column: span 1; /* Each card takes full width */
-            }
-            #greeting-container h1 { font-size: 1.8em; }
-            .info-card .value { font-size: 1.5em; }
+        @media (min-width: 1200px) {
+            .card[data-grid-col-lg="2"] { grid-column: span 2; }
+            .card[data-grid-col-lg="3"] { grid-column: span 3; }
         }
     </style>
 </head>
@@ -339,25 +326,25 @@
         </header>
 
         <div class="bento-grid">
-            <div class="card info-card" data-grid-col="2">
+            <div class="card info-card" data-grid-col="2" data-grid-col-md="3" data-grid-col-lg="2">
                 <h3><i class="fas fa-forward"></i> What's Next?</h3>
                 <div class="value" id="next-class-name">Loading...</div>
                 <div id="next-class-time"></div>
             </div>
-            <div class="card info-card" data-grid-col="2">
+            <div class="card info-card" data-grid-col="2" data-grid-col-md="3" data-grid-col-lg="2">
                 <h3><i class="fas fa-stopwatch"></i> Next Deadline</h3>
                 <div class="value" id="countdown-timer">--:--:--</div>
                 <div id="next-deadline-name">Loading...</div>
             </div>
-            <div class="card" data-grid-col="2">
+            <div class="card" data-grid-col="2" data-grid-col-md="6" data-grid-col-lg="2">
                 <h2><i class="fa-solid fa-bullseye"></i> Today's Focus</h2>
                 <div id="today-focus-list"></div>
             </div>
-            <div class="card" data-grid-col="3">
+            <div class="card" data-grid-col="3" data-grid-col-lg="3">
                 <h2><i class="fas fa-chart-pie"></i> Attendance Overview</h2>
                 <div id="attendance-bars" style="display: grid; gap: 16px;"></div>
             </div>
-            <div class="card" data-grid-col="3">
+            <div class="card" data-grid-col="3" data-grid-col-lg="3">
                 <h2><i class="fas fa-link"></i> Quick Links</h2>
                 <div id="link-grid-main"></div>
             </div>
@@ -444,18 +431,18 @@
 
         // --- DATA GENERATION & CALCULATION ---
         function generateFullSchedule() {
-            const startDate = new Date('2025-08-18T00:00:00');
-            const endDate = new Date('2025-11-24T23:59:59');
+            const startDate = new Date(Date.UTC(2025, 7, 18)); // August is month 7 (0-indexed)
+            const endDate = new Date(Date.UTC(2025, 10, 24)); // November is month 10
             let currentDate = new Date(startDate);
             let idCounter = 0;
             while (currentDate <= endDate) {
-                const dayOfWeek = currentDate.getDay();
+                const dayOfWeek = currentDate.getUTCDay();
                 scheduleTemplate.forEach(template => {
                     if (template.day === dayOfWeek) {
-                        fullSchedule.push({ id: idCounter++, date: currentDate.toISOString().split('T')[0], day: currentDate.toLocaleDateString('en-US', { weekday: 'long' }), courseCode: template.courseCode, time: template.time, type: template.type, attended: false, notes: '' });
+                        fullSchedule.push({ id: idCounter++, date: currentDate.toISOString().split('T')[0], day: currentDate.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' }), courseCode: template.courseCode, time: template.time, type: template.type, attended: false, notes: '' });
                     }
                 });
-                currentDate.setDate(currentDate.getDate() + 1);
+                currentDate.setUTCDate(currentDate.getUTCDate() + 1);
             }
         }
         function calculateTotalClasses() {
@@ -491,7 +478,7 @@
                 if (course.links.recordings) link_html += ` <a href="${course.links.recordings}" target="_blank" class="btn btn-record">Recs</a>`;
                 
                 return `<tr class="${entry.date === todayStr ? 'current-day-row' : ''}" data-entry-id="${entry.id}">
-                        <td>${new Date(entry.date).toLocaleDateString('en-GB')}</td><td>${entry.day}</td>
+                        <td>${new Date(entry.date).toLocaleDateString('en-GB', {timeZone: 'UTC'})}</td><td>${entry.day}</td>
                         <td>${course.name} (${entry.type})</td><td>${entry.time}</td><td>${link_html}</td>
                         <td><input type="checkbox" data-action="toggle-attendance" ${entry.attended ? 'checked' : ''}></td>
                         <td><input type="text" data-action="update-notes" value="${entry.notes}" placeholder="Add note..."></td>
@@ -504,7 +491,7 @@
                 <tr data-task-id="${task.id}">
                     <td><input type="checkbox" data-action="toggle-task" ${task.done ? 'checked' : ''}></td>
                     <td>${task.text}</td><td>${courses[task.courseCode].name}</td>
-                    <td>${new Date(task.dateAdded).toLocaleDateString('en-GB')}</td>
+                    <td>${new Date(task.dateAdded).toLocaleDateString('en-GB', {timeZone: 'UTC'})}</td>
                 </tr>`).join('');
             renderTaskProgress();
         }
@@ -546,7 +533,7 @@
             document.getElementById('timeline-container').innerHTML = academicCalendar.map(item => `
                 <div class="timeline-item">
                     <strong>${item.event}</strong>
-                    <span>${new Date(item.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                    <span>${new Date(item.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })}</span>
                 </div>`).join('');
         }
 
@@ -564,8 +551,8 @@
             hours = parseInt(hours);
             if (modifier === 'PM' && hours < 12) hours += 12;
             if (modifier === 'AM' && hours === 12) hours = 0;
-            const date = new Date(dateStr);
-            date.setHours(hours, parseInt(minutes), 0, 0);
+            const date = new Date(`${dateStr}T00:00:00Z`); // Treat date as UTC
+            date.setUTCHours(hours, parseInt(minutes), 0, 0);
             return date;
         }
 
@@ -587,7 +574,8 @@
         }
 
         function renderTodayFocus() {
-            const todayClasses = fullSchedule.filter(entry => entry.date === new Date().toISOString().split('T')[0]);
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayClasses = fullSchedule.filter(entry => entry.date === todayStr);
             const focusList = document.getElementById('today-focus-list');
             if (todayClasses.length > 0) {
                 focusList.innerHTML = todayClasses.map(entry => `<div class="class-item"><span>${courses[entry.courseCode].name} (${entry.type})</span><strong>${entry.time}</strong></div>`).join('');
@@ -607,7 +595,7 @@
             const nextDeadline = academicCalendar.find(d => new Date(d.date) > new Date());
             if (!nextDeadline) { document.getElementById('next-deadline-name').textContent = "All deadlines passed!"; return; }
             document.getElementById('next-deadline-name').textContent = nextDeadline.event;
-            const deadlineDate = new Date(nextDeadline.date);
+            const deadlineDate = new Date(`${nextDeadline.date}T00:00:00Z`);
             if(countdownInterval) clearInterval(countdownInterval);
             countdownInterval = setInterval(() => {
                 const s = (deadlineDate - new Date()) / 1000;
